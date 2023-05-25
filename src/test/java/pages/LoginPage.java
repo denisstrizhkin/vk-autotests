@@ -12,8 +12,8 @@ public class LoginPage {
     private final String url = OKInfo.BASE_URL;
     private final WebDriver driver;
     private final boolean isCheck;
-    private final By usernameLocator = By.id(OKInfo.LOGIN_USERNAME_FIELD_ID);
-    private final By passwordLocator = By.id(OKInfo.LOGIN_PASSWORD_FIELD_ID);
+    private final By usernameLocator = By.id("field_email");
+    private final By passwordLocator = By.id("field_password");
 
     public LoginPage(WebDriver driver) {
         this.driver = driver;
