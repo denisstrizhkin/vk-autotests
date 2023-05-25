@@ -1,10 +1,7 @@
 package tests;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
@@ -47,6 +44,7 @@ public class ChangeLanguageTest {
     }
 
     @Test
+    @DisplayName("Test opening user dropdown menu")
     public void TestUserDropDownMenu() {
         Assertions.assertFalse(mainPage.isUserDropDownVisible());
         OpenDropDown();
@@ -54,12 +52,14 @@ public class ChangeLanguageTest {
     }
 
     @Test
+    @DisplayName("Test opening language menu")
     public void TestUserLanguageMenu() throws InterruptedException {
         OpenLangMenu();
         Assertions.assertTrue(mainPage.isLanguageMenuVisible());
     }
 
     @Test
+    @DisplayName("Test language switching")
     public void TestEnglishLanguage() throws InterruptedException {
         OpenDropDown();
         final var curLang = mainPage.getCurrentLanguage();
