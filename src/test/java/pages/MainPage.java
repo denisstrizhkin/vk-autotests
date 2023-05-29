@@ -23,7 +23,7 @@ public class MainPage extends LoadableComponent<MainPage> {
     private final By navLocator = By.className("nav-side");
     private final By userDropDownButtonLocator = By.xpath("//div[contains(@class, 'toolbar_ucard') and @role='button' and @aria-controls='user-dropdown-menu']");
     private final By userDropDownMenuLocator = By.id("user-dropdown-menu");
-    private final By languageButtonLocator = By.xpath("//div[contains(@class, 'toolbar_accounts-menu')]//ul//li[position()=2]//a");
+    private final By languageButtonLocator = By.xpath("//a[@hrefattrs='st.cmd=userMain&cmd=PopLayer&st.layer.cmd=PopLayerChooseNewLanguage']");
     private final By languageMenuLocator = By.id("hook_Form_PopLayerChooseNewLanguageForm");
     private final By closeLanguageMenuLocator = By.id("nohook_modal_close");
     private final By languageStrLocator = By.xpath("./div//span");
