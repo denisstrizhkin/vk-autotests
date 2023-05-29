@@ -1,36 +1,39 @@
 package pages;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.junit.jupiter.api.Assertions;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.LoadableComponent;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import util.FieldChecker;
+import util.SafeWrapper;
 
 import java.time.Duration;
+import java.util.function.Function;
 
-public class MainPage {
+public class MainPage extends LoadableComponent<MainPage> {
     private final WebDriver driver;
+    private final LoginPage parent;
+    private final String username;
+    private final String password;
+
+    private final SafeWrapper sWrapper;
+
     private final By navLocator = By.className("nav-side");
-    private final By loginErrorLocator = By.className("login_error");
     private final By userDropDownButtonLocator = By.xpath("//div[contains(@class, 'toolbar_ucard') and @role='button' and @aria-controls='user-dropdown-menu']");
     private final By userDropDownMenuLocator = By.id("user-dropdown-menu");
     private final By languageButtonLocator = By.xpath("//div[contains(@class, 'toolbar_accounts-menu')]//ul//li[position()=2]//a");
     private final By languageMenuLocator = By.id("hook_Form_PopLayerChooseNewLanguageForm");
     private final By closeLanguageMenuLocator = By.id("nohook_modal_close");
+    private final By languageStrLocator = By.xpath("./div//span");
 
-    public MainPage(WebDriver driver) {
+    public MainPage(WebDriver driver, LoginPage parent, String username, String password) {
         this.driver = driver;
-    }
-
-    public boolean isLogin() {
-        final var checker = new FieldChecker(driver);
-        return checker.fieldExists(navLocator);
-    }
-
-    public boolean isFail() {
-        final var elementLoginError = driver.findElement(loginErrorLocator);
-        return elementLoginError.getSize().height > 0;
+        this.parent = parent;
+        this.username = username;
+        this.password = password;
+        this.sWrapper = new SafeWrapper(this.driver);
     }
 
     public WebElement getUserDropDownButton() {
@@ -50,42 +53,55 @@ public class MainPage {
     }
 
     public void openUserDropDown() {
-        final var elementUserDropDownButton = getUserDropDownButton();
-        new WebDriverWait(driver, Duration.ofSeconds(2)).until(ExpectedConditions.elementToBeClickable(elementUserDropDownButton));
-        elementUserDropDownButton.click();
-    }
-
-    public boolean isUserDropDownVisible() {
-        final var elementUserDropDown = getUserDropDownMenu();
-        return elementUserDropDown.isDisplayed();
+        sWrapper.Click(getUserDropDownButton());
+        new WebDriverWait(driver, Duration.ofSeconds(2))
+                .until(ExpectedConditions.elementToBeClickable(getUserDropDownMenu()));
     }
 
     public void openLanguageMenu() {
-        final var elementLanguageMenu = getLanguageButton();
-        new WebDriverWait(driver, Duration.ofSeconds(2)).until(ExpectedConditions.elementToBeClickable(elementLanguageMenu));
-        elementLanguageMenu.click();
+        sWrapper.Click(getLanguageButton());
+        new FluentWait(driver)
+                .withTimeout(Duration.ofSeconds(3))
+                .pollingEvery(Duration.ofMillis(500))
+                .ignoring(NoSuchElementException.class)
+                .until((Function<WebDriver, WebElement>) driver -> driver.findElement(languageMenuLocator));
     }
 
-    public boolean isLanguageMenuVisible() {
+    public boolean checkLanguageMenu() {
         final var checker = new FieldChecker(driver);
-        return checker.fieldExists(languageMenuLocator);
+        return checker.fieldDisplayed(languageMenuLocator);
+    }
+
+    public boolean checkUserDropDownMenu() {
+        final var checker = new FieldChecker(driver);
+        return checker.fieldDisplayed(userDropDownMenuLocator);
     }
 
     public String getCurrentLanguage() {
-        final var langBtn = getLanguageButton();
-        final var langSpan = langBtn.findElement(By.xpath("./div//span"));
-        return langSpan.getText();
+        return getLanguageButton().findElement(languageStrLocator).getText();
     }
 
     public void setLanguage(String lang) {
         final var langMenu = getLanguageMenu();
         final var langBtn = langMenu.findElement(By.xpath("./form//div//a[text()='" + lang + "']"));
-        langBtn.click();
+        sWrapper.Click(langBtn);
     }
     
     public void closeLanguageMenu() {
-        final var element = driver.findElement(closeLanguageMenuLocator);
-        new WebDriverWait(driver, Duration.ofSeconds(2)).until(ExpectedConditions.elementToBeClickable(element));
-        element.click();
+        sWrapper.Click(driver.findElement(closeLanguageMenuLocator));
+    }
+
+    @Override
+    protected void load() {
+        parent.get();
+        sWrapper.SendKeys(parent.getUsernameField(), username);
+        sWrapper.SendKeys(parent.getPasswordField(), password);
+        sWrapper.SendKeys(parent.getPasswordField(), Keys.ENTER);
+    }
+
+    @Override
+    protected void isLoaded() throws Error {
+        final var checker = new FieldChecker(driver);
+        Assertions.assertTrue(checker.fieldDisplayed(navLocator));
     }
 }

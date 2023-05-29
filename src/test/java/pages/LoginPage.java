@@ -1,52 +1,47 @@
 package pages;
 
-import org.openqa.selenium.Keys;
+import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.LoadableComponent;
 import util.FieldChecker;
 import util.OKInfo;
-import util.PageChecker;
 
-public class LoginPage {
-    private final String url = OKInfo.BASE_URL;
+public class LoginPage extends LoadableComponent<LoginPage> {
     private final WebDriver driver;
-    private final boolean isCheck;
     private final By usernameLocator = By.id("field_email");
     private final By passwordLocator = By.id("field_password");
 
     public LoginPage(WebDriver driver) {
         this.driver = driver;
-        final var checker = new PageChecker(driver);
-        isCheck = checker.pageLoadedSuccessfully(getUrl());
-    }
-
-    public String getUrl() {
-        return url;
     }
 
     public boolean checkUsernameField() {
         final var checker = new FieldChecker(driver);
-        return checker.fieldExists(usernameLocator);
+        return checker.fieldDisplayed(usernameLocator);
     }
 
     public boolean checkPasswordField() {
         final var checker = new FieldChecker(driver);
-        return checker.fieldExists(passwordLocator);
+        return checker.fieldDisplayed(passwordLocator);
     }
 
-    public boolean check() {
-        return isCheck;
+    public WebElement getUsernameField() {
+        return driver.findElement(usernameLocator);
     }
 
-    public MainPage login(String username, String password) {
-        final var elementUsername = driver.findElement(usernameLocator);
-        final var elementPassword = driver.findElement(passwordLocator);
+    public WebElement getPasswordField() {
+        return driver.findElement(passwordLocator);
+    }
 
-        elementUsername.sendKeys(username);
-        elementPassword.sendKeys(password);
-        elementPassword.sendKeys(Keys.ENTER);
+    @Override
+    protected void load() {
+        driver.get(OKInfo.BASE_URL);
+    }
 
-        return new MainPage(driver);
+    @Override
+    protected void isLoaded() throws Error {
+        Assertions.assertEquals(OKInfo.BASE_URL, driver.getCurrentUrl());
     }
 }

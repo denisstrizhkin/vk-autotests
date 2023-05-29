@@ -10,7 +10,10 @@ public class FieldChecker {
         this.driver = driver;
     }
 
-    public boolean fieldExists(By locator) {
-        return driver.findElements(locator).size() > 0;
+    public boolean fieldDisplayed(By locator) {
+        if (driver.findElements(locator).isEmpty()) {
+            return false;
+        }
+        return driver.findElement(locator).isDisplayed();
     }
 }
